@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flag!Flag!Flag!</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Unbounded:wght@600;800&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main>
+    <header class="intro">
+      <h1>Захвати все три флага!</h1>
+      <p>Введи <code>flag{...}</code> под каждым флагом.</p>
+    </header>
+
+    <section class="trail" id="trail" aria-label="Путь из трёх флагов">
+      <svg class="trail-svg" id="trail-svg" aria-hidden="true"></svg>
+      <!-- станции генерируются из app.js -->
+    </section>
+
+    <p class="progress" id="progress" aria-live="polite">0 / 3</p>
+
+    <div class="victory" id="victory" hidden>
+      <p class="victory-title">Все три флага захвачены!</p>
+    </div>
+
+    <button type="button" class="reset" id="reset">сбросить прогресс</button>
+  </main>
+
+  <canvas class="confetti" id="confetti" aria-hidden="true"></canvas>
+
+  <template id="station-tpl">
+    <div class="station">
+      <div class="flag-wrap">
+        <svg class="flag" viewBox="0 0 200 260" aria-hidden="true">
+          <defs>
+            <!-- id проставляется из app.js: шаблон клонируется трижды -->
+            <clipPath class="flag-clip"><path class="flag-clip-shape" d="M0,0Z"/></clipPath>
+          </defs>
+          <g class="fabric">
+            <g class="fabric-red">
+              <polygon class="flag-tail" points="78,46 196,46 160,83 196,121 78,121"/>
+              <polygon class="flag-fold" points="78,95 127,95 78,121"/>
+              <rect class="flag-main" x="5" y="21" width="122" height="74"/>
+            </g>
+            <g class="fabric-green">
+              <polygon class="flag-tail" points="78,46 196,46 160,83 196,121 78,121"/>
+              <polygon class="flag-fold" points="78,95 127,95 78,121"/>
+              <rect class="flag-main" x="5" y="21" width="122" height="74"/>
+            </g>
+          </g>
+          <rect class="flag-pole" x="5" y="12" width="10" height="246" rx="5"/>
+          <circle class="flag-pole" cx="10" cy="12" r="9"/>
+        </svg>
+        <span class="base"></span>
+      </div>
+      <h2 class="station-title"></h2>
+      <form class="answer" autocomplete="off" novalidate>
+        <label class="sr-only"></label>
+        <input type="text" name="flag" placeholder="flag{...}" spellcheck="false" autocapitalize="off">
+        <button type="submit">Проверить</button>
+      </form>
+      <p class="status" aria-live="polite"></p>
+    </div>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
