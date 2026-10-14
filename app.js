@@ -7,7 +7,7 @@
   // SALT здесь и в scripts/hash.mjs должен совпадать.
   var SALT = "glug-path-v1";
   var FLAGS = [
-    { id: 1, title: "Флаг 1", hash: "8b96b18eceeaef6a4172047348e5db135722a51591771b67f58e4afb522fa13f" },
+    { id: 1, title: "Флаг 1", hash: "7d674223381caeb20c5f5d433050896be16974910d21d81b32cb3c35699f3e3e" },
     { id: 2, title: "Флаг 2", hash: "c837509823296897382c2eefe89732bda01bc0add9c1c3ad8ddb666229f0e690" },
     { id: 3, title: "Флаг 3", hash: "afc803e6a07cb2c863937634b96bfe98e39df81adc0d07438232d153fb724c27" }
   ];
