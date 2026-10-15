@@ -3,15 +3,60 @@
 
   // ---------- конфиг ----------
   // Ответы хранятся только как SHA-256(SALT:id:ответ).
-  // Новый хэш: node scripts/hash.mjs <id> "flag{...}"
+  // Новый хэш: node scripts/hash.mjs <id> "CTF{...}"   (для list: true — добавить --list)
   // SALT здесь и в scripts/hash.mjs должен совпадать.
-  var SALT = "glug-path-v1";
+  // list: true — ответ-список через запятую, порядок/регистр/пробелы не важны.
+  var SALT = "ctf-path-v3";
   var FLAGS = [
-    { id: 1, title: "Флаг 1", hash: "7d674223381caeb20c5f5d433050896be16974910d21d81b32cb3c35699f3e3e" },
-    { id: 2, title: "Флаг 2", hash: "c837509823296897382c2eefe89732bda01bc0add9c1c3ad8ddb666229f0e690" },
-    { id: 3, title: "Флаг 3", hash: "afc803e6a07cb2c863937634b96bfe98e39df81adc0d07438232d153fb724c27" }
+    {
+      id: 1,
+      title: "Поиск пользователей",
+      text: "На целевой машине обнаружены три домашних каталога пользователей. Найдите все три имени и перечислите их через запятую.",
+      format: "CTF{…,…,…}",
+      list: true,
+      hash: "920baf2f79a6d1682831d3a90002f4df1d2bc18d4f24ae6ea3c33c3f3758b448"
+    },
+    {
+      id: 2,
+      title: "Поиск пароля",
+      text: "Найдите пароль пользователя tyrell.",
+      format: "CTF{password}",
+      hash: "17ea988d55db8ee9a71ac9e5f4c9d4afa177833d918304f5a745f4715681ecba"
+    },
+    {
+      id: 3,
+      title: "Получение root-флага",
+      text: "Получите права суперпользователя (root) и найдите файл root.txt в корневом каталоге. Прочитайте его содержимое, чтобы получить корневой флаг.",
+      format: "CTF{…}",
+      hash: "23f43e1bb79123bc79975db959ac289cb786e2469c923542ae93e0f4119d7562"
+    },
+    {
+      id: 4,
+      title: "Часовой пояс",
+      text: "Изучите настройки учётной записи admin_cms_drupal и определите город и страну, соответствующие указанному в профиле часовому поясу.",
+      format: "CTF{Continent/Reference city}",
+      hash: "2c06d6ea326e3280c9528521a8032580587abd69b4218b7918f056fdded1b0d9" // ЗАГЛУШКА: CTF{test4}
+    },
+    {
+      id: 5,
+      title: "Задание 5",
+      text: "Текст задания появится позже.",
+      format: "CTF{…}",
+      hash: "31858ff1d441f15ada6bd139571e8e7cb9c9629a9ce79d5b7b32dae8bcb233e0" // ЗАГЛУШКА: CTF{test5}
+    }
   ];
   var STORAGE_KEY = "flag-path-progress-v2:" + SALT;
+
+  // та же нормализация, что в scripts/hash.mjs
+  function normalize(value, isList) {
+    value = value.trim();
+    if (!isList) return value;
+    var m = value.match(/^([A-Za-z]+)\{([\s\S]*)\}$/);
+    if (!m) return value.replace(/\s+/g, "").toLowerCase();
+    var items = m[2].split(",").map(function (s) { return s.trim().toLowerCase(); })
+      .filter(Boolean).sort();
+    return m[1].toUpperCase() + "{" + items.join(",") + "}";
+  }
 
   // ---------- SHA-256 (чистый JS, работает и по http, и с file://) ----------
   var sha256 = (function () {
@@ -68,7 +113,7 @@
   window.__sha256 = sha256; // для самопроверки в консоли
 
   // ---------- состояние ----------
-  // { id: "flag{...}" } — введённые верные ответы, чтобы показывать их после перезагрузки
+  // { id: "CTF{...}" } — введённые верные ответы, чтобы показывать их после перезагрузки
   var solved = {};
   try {
     var saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
@@ -104,8 +149,12 @@
     var inputId = "flag-input-" + fl.id;
     input.id = inputId;
     label.htmlFor = inputId;
-    label.textContent = "Ответ для: " + fl.title;
-    node.querySelector(".station-title").textContent = fl.title;
+    label.textContent = "Ответ на задание " + fl.id;
+    node.querySelector(".flag-num").textContent = fl.id;
+    node.querySelector(".card-kicker").textContent = "Задание № " + fl.id;
+    node.querySelector(".card-title").textContent = fl.title;
+    node.querySelector(".card-text").textContent = fl.text;
+    node.querySelector(".card-format code").textContent = fl.format;
     node.dataset.id = fl.id;
 
     var clipId = "flag-clip-" + fl.id;
@@ -171,10 +220,10 @@
     var value = input.value.trim();
     var status = node.querySelector(".status");
     if (!value) {
-      status.textContent = "Введи flag{...}";
+      status.textContent = "Введи ответ в формате " + fl.format;
       return;
     }
-    if (sha256(SALT + ":" + fl.id + ":" + value) === fl.hash) {
+    if (sha256(SALT + ":" + fl.id + ":" + normalize(value, fl.list)) === fl.hash) {
       solved[fl.id] = value;
       save();
       markSolved(node, value);
@@ -182,7 +231,7 @@
 
       var r = node.querySelector(".flag").getBoundingClientRect();
       animateFill(node, 1100, function () {
-        confetti.burst(r.left + r.width * 0.45, r.top + r.height * 0.25, 60, 1);
+        confetti.burst(r.left + r.width * 0.45, r.top + r.height * 0.25);
         var roadTime = drawTrail(fl.id);
         if (solvedCount() === FLAGS.length) setTimeout(confetti.celebrate, roadTime + 150);
       });
@@ -221,19 +270,19 @@
     for (var i = 0; i < pts.length - 1; i++) {
       var p = pts[i], q = pts[i + 1], d;
       if (mobileMq.matches) {
-        // в колонку: обходим форму слева, чтобы линия не перечёркивала поля
-        var lx = 6, rad = 18;
+        // в колонку: дорога идёт по левому краю, мимо карточек
+        var lx = 10, rad = 18;
         d = "M" + p.x + "," + p.y +
           " H" + (lx + rad) + " Q" + lx + "," + p.y + " " + lx + "," + (p.y + rad) +
           " V" + (q.y - rad) + " Q" + lx + "," + q.y + " " + (lx + rad) + "," + q.y +
           " H" + q.x;
       } else {
-        // по земле под флагом, поворот только в промежутке между станциями
-        var g1 = stations[FLAGS[i].id].getBoundingClientRect().right - box.left;
-        var g2 = stations[FLAGS[i + 1].id].getBoundingClientRect().left - box.left;
-        var gm = (g1 + g2) / 2;
-        d = "M" + p.x + "," + p.y + " H" + g1 +
-          " C" + gm + "," + p.y + " " + gm + "," + q.y + " " + g2 + "," + q.y +
+        // змейка: от основания вниз, S-изгибом к левой стороне следующего древка
+        // (полотнище всегда справа от древка, так что слева путь свободен), вниз и в основание
+        var ax = q.x - 46, g = 36, r2 = 20;
+        d = "M" + p.x + "," + p.y +
+          " C" + p.x + "," + (p.y + g) + " " + ax + "," + (p.y + g) + " " + ax + "," + (p.y + 2 * g) +
+          " V" + (q.y - r2) + " Q" + ax + "," + q.y + " " + (ax + r2) + "," + q.y +
           " H" + q.x;
       }
 
@@ -299,7 +348,6 @@
     var colors = ["#ec5a3c", "#3db866", "#f7c548", "#2f80ed", "#ffffff", "#9b51e0"];
     var parts = [];
     var running = false;
-    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     function resize() {
       var dpr = window.devicePixelRatio || 1;
@@ -312,18 +360,19 @@
 
     // angle — направление вылета (рад), spread — разброс, power — скорость
     function spawn(x, y, n, angle, spread, power) {
-      if (reduce) n = Math.ceil(n / 4);
       for (var i = 0; i < n; i++) {
         var a = angle + (Math.random() - 0.5) * spread;
         var v = power * (0.5 + Math.random() * 0.7);
         parts.push({
           x: x, y: y,
           vx: Math.cos(a) * v, vy: Math.sin(a) * v,
-          w: 6 + Math.random() * 6, h: 4 + Math.random() * 4,
-          rot: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.3,
-          tilt: Math.random() * Math.PI * 2,
+          w: 9 + Math.random() * 8, h: 6 + Math.random() * 5,
+          rot: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.12,
+          tilt: Math.random() * Math.PI * 2, vt: 0.04 + Math.random() * 0.06,
+          sway: 0.4 + Math.random() * 0.9,
+          fall: 1.3 + Math.random() * 1.2,    // предельная скорость падения: медленно, как бумага
           color: colors[(Math.random() * colors.length) | 0],
-          life: 0, max: 110 + Math.random() * 70
+          life: 0, max: 420 + Math.random() * 240
         });
       }
       if (!running) { running = true; requestAnimationFrame(tick); }
@@ -333,14 +382,16 @@
       ctx.clearRect(0, 0, innerWidth, innerHeight);
       for (var i = parts.length - 1; i >= 0; i--) {
         var p = parts[i];
-        p.vy += 0.18;
-        p.vx *= 0.985; p.vy *= 0.985;
-        p.x += p.vx; p.y += p.vy;
-        p.rot += p.vr; p.tilt += 0.12;
+        p.vy += 0.06;
+        p.vx *= 0.98; p.vy *= 0.98;
+        if (p.vy > p.fall) p.vy = p.fall;
+        p.x += p.vx + Math.sin(p.tilt) * p.sway;
+        p.y += p.vy;
+        p.rot += p.vr; p.tilt += p.vt;
         p.life++;
         if (p.life > p.max || p.y > innerHeight + 40) { parts.splice(i, 1); continue; }
         ctx.save();
-        ctx.globalAlpha = Math.min(1, (p.max - p.life) / 30);
+        ctx.globalAlpha = Math.min(1, (p.max - p.life) / 60);
         ctx.translate(p.x, p.y);
         ctx.rotate(p.rot);
         ctx.scale(1, Math.cos(p.tilt));
@@ -354,21 +405,21 @@
 
     return {
       // небольшой залп из флага
-      burst: function (x, y, n, scale) {
-        spawn(x, y, n * scale, -Math.PI / 2, Math.PI * 1.1, 9 * scale);
+      burst: function (x, y) {
+        spawn(x, y, 140, -Math.PI / 2, Math.PI * 1.3, 8);
       },
       // финал: пушки из нижних углов + дождь сверху
       celebrate: function () {
         var W = innerWidth, Hh = innerHeight;
-        var waves = 4;
+        var waves = 6;
         for (var k = 0; k < waves; k++) {
           setTimeout(function () {
-            spawn(0, Hh, 70, -Math.PI / 3, 0.7, 22);
-            spawn(W, Hh, 70, -Math.PI * 2 / 3, 0.7, 22);
-            for (var j = 0; j < 40; j++) {
-              spawn(Math.random() * W, -10, 1, Math.PI / 2, 0.6, 3);
+            spawn(0, Hh, 110, -Math.PI / 3, 0.8, 17);
+            spawn(W, Hh, 110, -Math.PI * 2 / 3, 0.8, 17);
+            for (var j = 0; j < 50; j++) {
+              spawn(Math.random() * W, -20, 1, Math.PI / 2, 0.8, 1.5);
             }
-          }, k * 450);
+          }, k * 600);
         }
       }
     };

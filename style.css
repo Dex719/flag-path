@@ -27,9 +27,13 @@ body {
 }
 
 main {
-  max-width: 1040px;
+  max-width: 940px;
   margin: 0 auto;
-  padding: 40px 16px 48px;
+  padding: 40px 16px 56px;
+}
+
+.intro,
+.outro {
   text-align: center;
 }
 
@@ -59,9 +63,8 @@ main {
 .trail {
   position: relative;
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 24px;
+  flex-direction: column;
+  gap: 56px;
   margin-top: 48px;
 }
 
@@ -99,21 +102,24 @@ main {
 
 .station {
   position: relative;
-  flex: 0 1 250px;
+  display: grid;
+  grid-template-columns: 330px 1fr;
+  gap: 24px;
+  align-items: start;
 }
-
-/* ступенчатая раскладка: средний флаг ниже */
-.station:nth-child(3) { margin-top: 110px; }
 
 /* ---------- флаг ---------- */
 
 .flag-wrap {
+  --fw: 180px;
   position: relative;
-  width: 170px;
-  height: 221px;
-  margin: 0 auto;
-  transform: translateX(-24px); /* визуально центрируем полотнище, а не древко */
+  width: var(--fw);
+  height: calc(var(--fw) * 1.3);
+  margin-left: 46px;
 }
+
+/* змейка: чётные флаги сдвинуты вправо, дорога петляет */
+.station:nth-child(odd) .flag-wrap { margin-left: 136px; }
 
 .flag {
   display: block;
@@ -129,6 +135,15 @@ main {
 .fabric-green .flag-tail { fill: var(--green); }
 .fabric-green .flag-fold { fill: var(--green-dark); }
 .flag-pole { fill: var(--pole); }
+
+.flag-num {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 46px;
+  fill: #fff;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
 
 /* полотнище колышется, пока по нему разливается зелёный */
 .fabric {
@@ -149,8 +164,8 @@ main {
 /* точка у основания древка — сюда приходит путь */
 .base {
   position: absolute;
-  left: 8.5px;
-  top: 219px;
+  left: 5%;      /* центр древка: x=10 из 200 */
+  top: 99.2%;    /* низ древка: y=258 из 260 */
   width: 16px;
   height: 16px;
   border-radius: 50%;
@@ -168,21 +183,59 @@ main {
   100% { box-shadow: 0 0 0 16px rgba(61, 184, 102, 0); }
 }
 
-/* ---------- форма ---------- */
+/* ---------- карточка задания ---------- */
 
-.station-title {
-  margin: 22px 0 10px;
+.card {
+  padding: 18px 20px 14px;
+  background: rgba(255, 255, 255, 0.55);
+  border: 2px solid rgba(30, 45, 51, 0.12);
+  border-radius: 12px;
+  transition: border-color 0.5s ease, background-color 0.5s ease;
+}
+
+.station.solved .card {
+  border-color: var(--green);
+  background: rgba(239, 250, 242, 0.8);
+}
+
+.card-kicker {
+  margin: 0 0 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.card-title {
+  margin: 0 0 10px;
   font-family: var(--display);
   font-weight: 600;
-  font-size: 1rem;
-  text-transform: uppercase;
+  font-size: 1.1rem;
+  line-height: 1.3;
+}
+
+.card-text {
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.card-format {
+  margin: 0 0 14px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.card-format code {
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--ink);
 }
 
 .answer {
   display: flex;
   gap: 8px;
-  max-width: 250px;
-  margin: 0 auto;
 }
 
 .answer input {
@@ -301,18 +354,23 @@ main {
 @media (max-width: 760px) {
   main { padding-top: 28px; }
 
-  .trail {
-    flex-direction: column;
-    align-items: center;
-    gap: 56px;
-  }
+  .trail { gap: 48px; }
 
+  /* флаг над карточкой, дорога идёт по левому краю */
   .station {
-    width: 100%;
-    max-width: 320px;
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
 
-  .station:nth-child(3) { margin-top: 0; }
+  .flag-wrap,
+  .station:nth-child(odd) .flag-wrap { margin-left: 40px; }
+
+  .flag-wrap { --fw: 150px; }
+
+  .card { margin-left: 28px; }
+
+  .answer { flex-wrap: wrap; }
+  .answer input { flex-basis: 180px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

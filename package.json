@@ -2,7 +2,7 @@
   "name": "flag-path",
   "version": "1.0.0",
   "private": true,
-  "description": "Три флага: введи flag{...} — флаг становится зелёным",
+  "description": "CTF-квест: пять флагов, у каждого своё задание",
   "scripts": {
     "dev": "npx --yes serve@14.2.4 -l 3000 .",
     "hash": "node scripts/hash.mjs"
