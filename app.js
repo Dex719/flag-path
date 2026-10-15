@@ -39,10 +39,10 @@
     },
     {
       id: 5,
-      title: "Задание 5",
-      text: "Текст задания появится позже.",
+      title: "Скрытый след",
+      text: "Изучите статью «Look for this one?». Проанализируйте её содержимое и найдите необычную подпись. На какую тему или технологию в области веб-разработки указывает эта подпись?",
       format: "CTF{…}",
-      hash: "31858ff1d441f15ada6bd139571e8e7cb9c9629a9ce79d5b7b32dae8bcb233e0" // ЗАГЛУШКА: CTF{test5}
+      hash: "65af376666da6810b6a00d6ceeb42a0a4ed04bcb67add73a8fb06c9b561fed74"
     }
   ];
   var STORAGE_KEY = "flag-path-progress-v2:" + SALT;
