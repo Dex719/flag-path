@@ -37,5 +37,3 @@ node scripts/hash.mjs 4 "CTF{настоящий_ответ}"
 ```bash
 node scripts/hash.mjs 1 "CTF{a,b,c}" --list
 ```
-
-Задание 4 пока с заглушкой: `CTF{test4}`. Перед запуском удали эту строку.
